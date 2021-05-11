@@ -68,19 +68,25 @@ public class MainMenu {
             System.out.println("Enter Check in date mm/dd/yyyy example 02/30/1999");
             String checkInDate = userInput.nextLine();
             if (datePattern.matcher(checkInDate).matches()){
+                firstDateCorrect = true;
                 while(!secondDateCorrect){
                     System.out.println("Enter Check out date mm/dd/yyyy example 02/30/1999");
                     String checkOutDate = userInput.nextLine();
                     if (datePattern.matcher(checkOutDate).matches()){
+                        secondDateCorrect = true;
                         Collection<IRoom> availableRooms = ReservationService.findRooms(setDate(checkInDate),setDate(checkOutDate));
-                        for (IRoom room: availableRooms){
-                            System.out.println(room);
-                            System.out.println("------------------------------------");
-                        }
-                        //String answer = yesOrNo("Would you like to book a room? Y/N");
-                        if (yesOrNo("Would you like to book a room? Y/N").equalsIgnoreCase("y")){
-                            bookARoom(setDate(checkInDate),setDate(checkOutDate));
-                        }else{
+                        if (!availableRooms.isEmpty()){
+                            for (IRoom room: availableRooms){
+                                System.out.println(room);
+                                System.out.println("------------------------------------");
+                            }
+                            if (yesOrNo("Would you like to book a room? Y/N").equalsIgnoreCase("y")){
+                                bookARoom(setDate(checkInDate),setDate(checkOutDate),availableRooms);
+                            }else{
+                                mainMenu();
+                            }
+                        }else {
+                            System.out.println("No rooms available at the moment...try again later");
                             mainMenu();
                         }
                     }else {
@@ -112,9 +118,9 @@ public class MainMenu {
         return answer;
     }
 
-    public static void bookARoom(Date checkIn,Date checkOut){
+    public static void bookARoom(Date checkIn,Date checkOut,Collection<IRoom> availableRooms){
         if (yesOrNo("Do you have an account with us? Y/N").equalsIgnoreCase("y")){
-            reserveARoom(checkIn,checkOut);
+            reserveARoom(checkIn,checkOut,availableRooms);
             mainMenu();
         }else{
             //come back
@@ -122,7 +128,7 @@ public class MainMenu {
         }
     }
 
-    public static void reserveARoom(Date checkIn,Date checkOut){
+    public static void reserveARoom(Date checkIn,Date checkOut,Collection<IRoom> availableRooms){
         Scanner userInput = new Scanner(System.in);
         System.out.println("Enter Email");
         String email = userInput.nextLine();
@@ -131,11 +137,11 @@ public class MainMenu {
             System.out.println("What room would you like to reserve");
             String roomNumber = userInput.nextLine();
             IRoom room = ReservationService.getARoom(roomNumber);
-            if (room != null){
-                Reservation newReservation = ReservationService.reserveARoom(customer,room,checkIn,checkOut);
+            if (room != null && availableRooms.contains(room)) {
+                Reservation newReservation = ReservationService.reserveARoom(customer, room, checkIn, checkOut);
                 System.out.println(newReservation);
             }else {
-                System.out.println("Room number "+ roomNumber +" does not exist.");
+                System.out.println("Room number "+ roomNumber +" is not available.");
             }
         }else{
             System.out.println("Customer with email "+ email +" does not exist.");
@@ -167,6 +173,7 @@ public class MainMenu {
                     System.out.println("--------------------------------------");
                 }
             }
+            mainMenu();
         }catch (Exception ex){
             System.out.println(ex);
         }

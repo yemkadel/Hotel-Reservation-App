@@ -37,13 +37,16 @@ public class AdminMenu {
                             break;
                         case 4:
                             addRoom();
+                            break;
                         case 5:
                             MainMenu.mainMenu();
                             break;
                         default:
+                            System.out.println("Enter a valid Value between 1 - 5");
+                            break;
                     }
                 }catch (Exception ex){
-                    System.out.println("Enter a valid Value!");
+                    System.out.println(ex);
                 }
             }
     }
