@@ -6,6 +6,9 @@ import model.IRoom;
 import model.Room;
 import model.RoomType;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Scanner;
 
 public class AdminMenu {
@@ -33,7 +36,7 @@ public class AdminMenu {
                             showAllRooms();
                             break;
                         case 3:
-                            ReservationService.printAllReservation();
+                            AdminResource.displayAllReservations();
                             break;
                         case 4:
                             addRoom();
@@ -52,10 +55,11 @@ public class AdminMenu {
     }
 
     public static void showAllRooms(){
-        if (ReservationService.getAllRooms().isEmpty()){
+        Collection<IRoom> rooms = AdminResource.getAllRooms();
+        if (rooms.isEmpty()){
             System.out.println("No Rook has been added yet");
         }else {
-            for (IRoom room : ReservationService.getAllRooms()){
+            for (IRoom room : rooms){
                 System.out.println(room);
                 System.out.println("---------------------------");
             }
@@ -65,6 +69,7 @@ public class AdminMenu {
     public static void addRoom(){
         boolean keepRunning = true;
         Scanner scanner = new Scanner(System.in);
+        List<IRoom> newRooms = new ArrayList<>();
         while (keepRunning){
             try {
                 System.out.println("Enter room number");
@@ -80,7 +85,7 @@ public class AdminMenu {
                     type = RoomType.DOUBLE;
                 }
                 Room newRoom = new Room(roomNumber,price,type);
-                ReservationService.addRoom(newRoom);
+                newRooms.add(newRoom);
                 System.out.println("Press y to add another room or n to go back to main Menu");
                 Scanner scanner1 = new Scanner(System.in);
                 String answer = scanner1.nextLine();
@@ -90,6 +95,7 @@ public class AdminMenu {
                         break;
                     case "n":
                         keepRunning = false;
+                        AdminResource.addRoom(newRooms);
                         break;
                     default:
                         System.out.println("Invalid Selection");
@@ -103,10 +109,11 @@ public class AdminMenu {
     }
 
     public static void seeAllCustomers(){
-        if (CustomerService.getAllCustomers().isEmpty()){
+        Collection<Customer> customers = AdminResource.getAllCustomers();
+        if (customers.isEmpty()){
             System.out.println("There is no registered Customer for now");
         }else {
-            for (Customer customer : CustomerService.getAllCustomers()){
+            for (Customer customer : customers){
                 System.out.println(customer);
                 System.out.println("--------------------------------");
             }

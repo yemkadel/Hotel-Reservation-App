@@ -21,4 +21,29 @@ public class Customer {
         return "Customer Name: "+ firstName +" "+ lastName+
                 "\nEmail: "+ email;
     }
+    public boolean equals(Object o){
+        if (o == this)
+            return true;
+        if (!(o instanceof Customer))
+            return false;
+        Customer other = (Customer) o;
+        boolean firstNameEquals = (this.firstName == null && other.firstName == null) || (this.firstName != null && this.firstName.equals(other.firstName));
+        boolean lastNameEquals = (this.lastName == null && other.lastName == null) || (this.lastName != null && this.lastName.equals(other.lastName));
+        boolean emailEquals = (this.email == null && other.email == null) || (this.email != null && this.email.equals(other.email));
+        return (firstNameEquals && lastNameEquals && emailEquals);
+    }
+    public final int hashCode() {
+        int result = 17;
+        if (firstName != null) {
+            result = 31 * result + firstName.hashCode();
+        }
+        if (lastName != null) {
+            result = 31 * result + lastName.hashCode();
+        }
+        if (email != null) {
+            result = 31 * result + email.hashCode();
+        }
+        return result;
+    }
+
 }

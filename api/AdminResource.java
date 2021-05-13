@@ -19,10 +19,13 @@ public class AdminResource {
         }
     }
     public static Collection<IRoom> getAllRooms(){
+
         return ReservationService.getAllRooms();
     }
     public static Collection<Customer> getAllCustomers(){
+
         return CustomerService.getAllCustomers();
+
     }
     public static void displayAllReservations(){
         ReservationService.printAllReservation();;

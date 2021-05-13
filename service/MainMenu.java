@@ -1,13 +1,12 @@
 package service;
 
+import api.AdminResource;
+import api.HotelResource;
 import model.Customer;
 import model.IRoom;
 import model.Reservation;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class MainMenu {
@@ -74,20 +73,27 @@ public class MainMenu {
                     String checkOutDate = userInput.nextLine();
                     if (datePattern.matcher(checkOutDate).matches()){
                         secondDateCorrect = true;
-                        Collection<IRoom> availableRooms = ReservationService.findRooms(setDate(checkInDate),setDate(checkOutDate));
-                        if (!availableRooms.isEmpty()){
-                            for (IRoom room: availableRooms){
-                                System.out.println(room);
-                                System.out.println("------------------------------------");
-                            }
-                            if (yesOrNo("Would you like to book a room? Y/N").equalsIgnoreCase("y")){
-                                bookARoom(setDate(checkInDate),setDate(checkOutDate),availableRooms);
-                            }else{
+                        int addExtra = 0;
+                        while(addExtra <= 7){
+                            Collection<IRoom> availableRooms = HotelResource.findARoom(setDate(checkInDate,addExtra),setDate(checkOutDate,addExtra));
+                            if (!availableRooms.isEmpty()){
+                                for (IRoom room: availableRooms){
+                                    System.out.println(room);
+                                    System.out.println("CheckInDate: "+setDate(checkInDate,addExtra));
+                                    System.out.println("checkOutDate: "+setDate(checkOutDate,addExtra));
+                                    System.out.println("------------------------------------");
+                                }
+                                if (yesOrNo("Would you like to book a room? Y/N").equalsIgnoreCase("y")){
+                                    bookARoom(setDate(checkInDate,addExtra),setDate(checkOutDate,addExtra),availableRooms);
+                                }else{
+                                    mainMenu();
+                                }
+                                break;
+                            }else {
+                                System.out.println("No rooms available at the moment...try again later");
                                 mainMenu();
                             }
-                        }else {
-                            System.out.println("No rooms available at the moment...try again later");
-                            mainMenu();
+                            addExtra = addExtra + 1;
                         }
                     }else {
                         System.out.println("Invalid Date format!!!");
@@ -132,14 +138,14 @@ public class MainMenu {
         Scanner userInput = new Scanner(System.in);
         System.out.println("Enter Email");
         String email = userInput.nextLine();
-        Customer customer = CustomerService.getCustomer(email);
+        Customer customer = AdminResource.getCustomer(email);
         if (customer != null){
             System.out.println("What room would you like to reserve");
             String roomNumber = userInput.nextLine();
-            IRoom room = ReservationService.getARoom(roomNumber);
+            IRoom room = HotelResource.getARoom(roomNumber);
             if (room != null && availableRooms.contains(room)) {
-                Reservation newReservation = ReservationService.reserveARoom(customer, room, checkIn, checkOut);
-                System.out.println(newReservation);
+               Reservation newReservation = HotelResource.bookARoom(email,room,checkIn,checkOut);
+               System.out.println(newReservation);
             }else {
                 System.out.println("Room number "+ roomNumber +" is not available.");
             }
@@ -158,13 +164,22 @@ public class MainMenu {
         return date;
     }
 
+    public static Date setDate(String dateEntered,int addedDays){
+        Calendar calender = Calendar.getInstance();
+        String[] dateArray = new String[3];
+        dateArray = dateEntered.split("/");
+        calender.set(Integer.parseInt(dateArray[2]),Integer.parseInt(dateArray[0]),Integer.parseInt(dateArray[1]));
+        calender.add(Calendar.DAY_OF_MONTH,addedDays);
+        Date date = calender.getTime();
+        return date;
+    }
+
     public static void seeMyReservations(){
         Scanner userInput = new Scanner(System.in);
         try {
             System.out.println("Enter Customer Email");
             String email = userInput.nextLine();
-            Collection<Reservation> customersReservations = ReservationService.getCustomersReservation(CustomerService
-                    .getCustomer(email));
+            Collection<Reservation> customersReservations = HotelResource.getCustomersReservations(email);
             if (customersReservations.isEmpty()){
                 System.out.println("Customer does not have any reservations");
             }else {
@@ -188,7 +203,7 @@ public class MainMenu {
             String firstName = userInput.nextLine();
             System.out.println("Enter Last Name");
             String lastName = userInput.nextLine();
-            CustomerService.addCustomer(email,firstName,lastName);
+            HotelResource.createACustomer(email,firstName,lastName);
             mainMenu();
         }catch (Exception ex){
             System.out.println(ex);
