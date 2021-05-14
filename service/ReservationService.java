@@ -6,24 +6,35 @@ import model.Reservation;
 
 import java.util.*;
 
-public class ReservationService {
+public final class ReservationService {
     private static Map<String,IRoom> rooms = new HashMap<>();
     private static Collection<Reservation> reservations = new ArrayList<>();
+    private static ReservationService INSTANCE;
 
-    public static void addRoom(IRoom room){
+    private ReservationService(){
+    }
+
+    public static ReservationService getInstance(){
+        if (INSTANCE == null){
+            INSTANCE = new ReservationService();
+        }
+        return INSTANCE;
+    }
+
+    public void addRoom(IRoom room){
        rooms.put(room.getRoomNumber(),room);
     }
-    public static IRoom getARoom(String roomId){
+    public IRoom getARoom(String roomId){
         return rooms.get(roomId);
     }
 
-    public static Reservation reserveARoom(Customer customer,IRoom room, Date checkInDate,Date checkOutDate){
+    public Reservation reserveARoom(Customer customer,IRoom room, Date checkInDate,Date checkOutDate){
         Reservation newReservation = new Reservation(customer,room,checkInDate,checkOutDate);
         addReservations(newReservation);
         return newReservation;
     }
 
-    public static Collection<IRoom> findRooms(Date checkInDate,Date checkOutDate){
+    public Collection<IRoom> findRooms(Date checkInDate,Date checkOutDate){
         Collection<IRoom> availableRooms = new ArrayList<>();
         Collection<IRoom> reservedRooms = getReservedRooms(checkInDate,checkOutDate);
         for(IRoom room : rooms.values()){
@@ -34,22 +45,21 @@ public class ReservationService {
         return availableRooms;
     }
 
-    public static Collection<IRoom> getReservedRooms (Date checkInDate,Date checkOutDate){
+    public Collection<IRoom> getReservedRooms (Date checkInDate,Date checkOutDate){
         Collection<IRoom> reservedRooms = new ArrayList<>();
         for (Reservation reservation : reservations){
             IRoom room = reservation.getRoom();
-            if ((checkInDate.compareTo(reservation.getCheckInDate()) * reservation.getCheckInDate().compareTo(checkOutDate) >= 0) || (checkInDate.compareTo(reservation.getCheckOutDate()) * reservation.getCheckOutDate().compareTo(checkOutDate) >= 0)){
+            if ((checkInDate.compareTo(reservation.getCheckInDate()) * reservation.getCheckInDate().compareTo(checkOutDate) >= 0) || (checkInDate.compareTo(reservation.getCheckOutDate()) * reservation.getCheckOutDate().compareTo(checkOutDate) >= 0)) {
                 reservedRooms.add(room);
-                System.out.println("here");
             }
         }
         return reservedRooms;
     }
 
-    public static void addReservations(Reservation reservation){
+    public void addReservations(Reservation reservation){
         reservations.add(reservation);
     }
-    public static Collection<Reservation> getCustomersReservation(Customer customer){
+    public Collection<Reservation> getCustomersReservation(Customer customer){
         Collection<Reservation> customersReservations = new ArrayList<>();
         for (Reservation reservation : reservations){
             if (customer == reservation.getCustomer()){
@@ -58,7 +68,7 @@ public class ReservationService {
         }
         return customersReservations;
     }
-    public static void printAllReservation(){
+    public void printAllReservation(){
         if (reservations.isEmpty()){
             System.out.println("There is no reservation yet");
         }else {
@@ -67,7 +77,7 @@ public class ReservationService {
             }
         }
     }
-    public static Collection<IRoom> getAllRooms(){
+    public Collection<IRoom> getAllRooms(){
         return rooms.values();
     }
 

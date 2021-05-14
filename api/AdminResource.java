@@ -10,24 +10,27 @@ import java.util.Collection;
 import java.util.List;
 
 public class AdminResource {
+    private static final CustomerService customerService = CustomerService.getInstance();
+    private static final ReservationService reservationService = ReservationService.getInstance();
+
     public static Customer getCustomer(String email){
-        return CustomerService.getCustomer(email);
+        return customerService.getCustomer(email);
     }
     public static void addRoom(List<IRoom> rooms){
         for(IRoom room : rooms){
-            ReservationService.addRoom(room);
+            reservationService.addRoom(room);
         }
     }
     public static Collection<IRoom> getAllRooms(){
 
-        return ReservationService.getAllRooms();
+        return reservationService.getAllRooms();
     }
     public static Collection<Customer> getAllCustomers(){
 
-        return CustomerService.getAllCustomers();
+        return customerService.getAllCustomers();
 
     }
     public static void displayAllReservations(){
-        ReservationService.printAllReservation();;
+        reservationService.printAllReservation();;
     }
 }

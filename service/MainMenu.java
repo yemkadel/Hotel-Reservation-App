@@ -73,27 +73,45 @@ public class MainMenu {
                     String checkOutDate = userInput.nextLine();
                     if (datePattern.matcher(checkOutDate).matches()){
                         secondDateCorrect = true;
-                        int addExtra = 0;
-                        while(addExtra <= 7){
-                            Collection<IRoom> availableRooms = HotelResource.findARoom(setDate(checkInDate,addExtra),setDate(checkOutDate,addExtra));
-                            if (!availableRooms.isEmpty()){
-                                for (IRoom room: availableRooms){
-                                    System.out.println(room);
-                                    System.out.println("CheckInDate: "+setDate(checkInDate,addExtra));
-                                    System.out.println("checkOutDate: "+setDate(checkOutDate,addExtra));
-                                    System.out.println("------------------------------------");
-                                }
-                                if (yesOrNo("Would you like to book a room? Y/N").equalsIgnoreCase("y")){
-                                    bookARoom(setDate(checkInDate,addExtra),setDate(checkOutDate,addExtra),availableRooms);
-                                }else{
-                                    mainMenu();
-                                }
-                                break;
-                            }else {
-                                System.out.println("No rooms available at the moment...try again later");
-                                mainMenu();
+                        Collection<IRoom> availableRooms = HotelResource.findARoom(setDate(checkInDate),setDate(checkOutDate));
+                        if (!availableRooms.isEmpty()){
+                            System.out.println("Available Rooms");
+                            for (IRoom room: availableRooms){
+                                System.out.println(room);
+                                System.out.println("CheckInDate: "+setDate(checkInDate));
+                                System.out.println("checkOutDate: "+setDate(checkOutDate));
+                                System.out.println("------------------------------------");
                             }
-                            addExtra = addExtra + 1;
+                            if (yesOrNo("Would you like to book a room? Y/N").equalsIgnoreCase("y")){
+                                bookARoom(setDate(checkInDate),setDate(checkOutDate),availableRooms);
+                            }else{
+                                mainMenu();
+                                break;
+                            }
+                        }else {
+                            int extraDays = 1;
+                            while (extraDays <=7){
+                                Collection<IRoom> recommendedRooms = HotelResource.findARoom(setDate(checkInDate,extraDays),setDate(checkOutDate,extraDays));
+                                if (!recommendedRooms.isEmpty()) {
+                                    System.out.println("Recommended Room");
+                                    for (IRoom room : recommendedRooms) {
+                                        System.out.println(room);
+                                        System.out.println("CheckInDate: " + setDate(checkInDate, extraDays));
+                                        System.out.println("checkOutDate: " + setDate(checkOutDate, extraDays));
+                                        System.out.println("------------------------------------");
+                                    }
+                                    if (yesOrNo("Would you like to book a room? Y/N").equalsIgnoreCase("y")) {
+                                        bookARoom(setDate(checkInDate, extraDays), setDate(checkOutDate, extraDays), availableRooms);
+                                        break;
+                                    } else {
+                                        mainMenu();
+                                        break;
+                                    }
+                                }
+                                extraDays = extraDays + 1;
+                            }
+                            System.out.println("No rooms available at the moment...try again later");
+                            mainMenu();
                         }
                     }else {
                         System.out.println("Invalid Date format!!!");
@@ -160,6 +178,10 @@ public class MainMenu {
         String[] dateArray = new String[3];
         dateArray = dateEntered.split("/");
         calender.set(Integer.parseInt(dateArray[2]),Integer.parseInt(dateArray[0]),Integer.parseInt(dateArray[1]));
+        calender.set(Calendar.HOUR_OF_DAY,0);
+        calender.set(Calendar.MINUTE,0);
+        calender.set(Calendar.SECOND,0);
+        calender.set(Calendar.MILLISECOND,0);
         Date date = calender.getTime();
         return date;
     }
@@ -170,6 +192,10 @@ public class MainMenu {
         dateArray = dateEntered.split("/");
         calender.set(Integer.parseInt(dateArray[2]),Integer.parseInt(dateArray[0]),Integer.parseInt(dateArray[1]));
         calender.add(Calendar.DAY_OF_MONTH,addedDays);
+        calender.set(Calendar.HOUR_OF_DAY,0);
+        calender.set(Calendar.MINUTE,0);
+        calender.set(Calendar.SECOND,0);
+        calender.set(Calendar.MILLISECOND,0);
         Date date = calender.getTime();
         return date;
     }
